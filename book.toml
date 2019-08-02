@@ -1,0 +1,5 @@
+[book]
+authors = ["Arve Seljebu"]
+multilingual = false
+src = "src"
+title = "Build your own CouchDB"
