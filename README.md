@@ -10,7 +10,7 @@ CouchDB leaves me longing for better interoperability with modern browsers. Spec
 With no further ado, let’s start the journey and look at the objectives.
 
 ## Objectives
-Decisions made when when building my own CouchDB should reflect the main goals, they are:
+Decisions made should reflect the main goals, they are:
 
 ### Goals
 - Easy interoperability with other programming environments.
