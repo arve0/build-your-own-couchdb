@@ -3,3 +3,4 @@
 - [Introduction](./01-introduction.md)
 - [Persistent storage](./02-persistent-storage.md)
 - [Abstract database access](./03-abstract-database-access.md)
+- [Create database only when missing](./04-create-database-only-when-missing.md)

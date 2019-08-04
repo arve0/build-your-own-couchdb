@@ -1,9 +1,8 @@
 use rusqlite::{named_params, Connection, Error as SqliteError, Row};
+use std::path::Path;
 
 fn main() {
-    let db = Connection::open("database.sqlite").expect("Unable to open 'database.sqlite'.");
-
-    Document::create_table(&db).expect("Unable to create documents table.");
+    let db = get_db_create_if_missing("database.sqlite");
 
     let document = Document {
         id: String::from("asdf"),
@@ -18,6 +17,21 @@ fn main() {
         .expect("Unable to get document with id 'asdf'");
 
     println!("data: {}", &document_from_db.data);
+}
+
+fn get_db_create_if_missing(filename: &str) -> Connection {
+    // Connection::open will create file if missing, check before.
+    let exists = Path::new(filename).exists();
+
+    let db = Connection::open(filename)
+        .unwrap_or_else(|_| panic!(format!("Unable to open database file {}", filename)));
+
+    if !exists {
+        // create schema
+        Document::create_table(&db).expect("Unable to create documents table.");
+    }
+
+    db
 }
 
 struct Document {
