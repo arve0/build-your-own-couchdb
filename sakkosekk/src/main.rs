@@ -1,6 +1,8 @@
 use rusqlite::{named_params, Connection, Error as SqliteError, Row};
 use std::path::Path;
 
+mod tests;
+
 fn main() {
     let db = get_db_create_if_missing("database.sqlite");
 
@@ -13,8 +15,8 @@ fn main() {
 
     document.insert(&db).expect("Unable to insert document.");
 
-    let document_from_db = Document::get_by_id("asdf", &db)
-        .expect("Unable to get document with id 'asdf'");
+    let document_from_db =
+        Document::get_by_id("asdf", &db).expect("Unable to get document with id 'asdf'");
 
     println!("data: {}", &document_from_db.data);
 }
