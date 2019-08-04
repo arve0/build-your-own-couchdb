@@ -36,6 +36,7 @@ fn get_db_create_if_missing(filename: &str) -> Connection {
     db
 }
 
+#[derive(PartialEq)]
 struct Document {
     id: String,
     revision: i64,
@@ -47,11 +48,13 @@ impl Document {
     fn create_table(db: &Connection) -> Result<(), SqliteError> {
         db.execute_batch(
             "create table documents (
-            id text primary key not null,
-            revision integer not null,
-            hash blob not null,
-            data text not null
-        )",
+                id text not null,
+                revision integer not null,
+                hash blob not null,
+                data text not null,
+                unique(id, revision, hash)
+            );
+            ",
         )
     }
 
