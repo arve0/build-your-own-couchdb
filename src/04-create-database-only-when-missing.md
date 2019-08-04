@@ -54,4 +54,4 @@ thread 'main' panicked at 'Unable to insert document.: SqliteFailure(Error { cod
 note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 ```
 
-We'll fix this by refactoring the main function into tests in the next chapter.
+Next up: Refactor the main function into tests.

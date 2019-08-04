@@ -104,8 +104,9 @@ note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 ~/g/b/sakkosekk [101] $
 ```
 
-The code assumes a missing database and fails with exit code 101 when it exists. Removing the database before running:
+The code assumes an empty database and fails with exit code 101.
 
+Removing the database before running works:
 ```sh
 ~/g/b/sakkosekk (master|✚2) [101] $ rm database.sqlite && cargo run
     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
@@ -113,4 +114,4 @@ The code assumes a missing database and fails with exit code 101 when it exists.
 data: { "a": 1, "b": 123 }
 ```
 
-Next ut is fixing this error.
+Next up: Fixing this error.

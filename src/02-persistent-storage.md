@@ -92,7 +92,7 @@ Result:
 data: { "a": 1, "b": 123 }
 ```
 
-Next up is creating abstractions around creating, inserting and reading from the database.
+Next up: Abstractions around creating the database schema, inserting documents and reading documents.
 
 [SQLite]: https://sqlite.org/
 [Cargo]: https://doc.rust-lang.org/cargo/
