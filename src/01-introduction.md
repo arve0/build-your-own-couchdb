@@ -14,15 +14,18 @@ Decisions made should reflect the main goals, they are:
 
 ### Goals
 - Easy interoperability with other programming environments.
-- Efficient syncing.
-- Use modern protocols.
+- Efficient and simple syncing.
+- Use browser native protocols / APIs.
 - Availability and Partition tolerance of [CAP].
+
+To help finishing the project, some non-goals will restrict scope and complexity:
 
 ### Non goals
 - Compatibility with CouchDB.
 - Writing low level code.
-- Server side lookup.
+- Exstensive server side logic, like index lookup and [design documents].
 - Consistency of CAP.
 
 [CouchDB]: https://couchdb.apache.org/
 [CAP]: https://en.wikipedia.org/wiki/CAP_theorem
+[design documents]: https://docs.couchdb.org/en/master/ddocs/index.html
