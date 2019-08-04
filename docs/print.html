@@ -1,0 +1,643 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Build your own CouchDB</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Build your own CouchDB</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#build-your-own-couchdb" id="build-your-own-couchdb"><h1>Build your own CouchDB</h1></a>
+<p>Hi! I'm Arve and this is my adventure into building my own modern CouchDB with Rust.</p>
+<a class="header" href="#what-is-couchdb" id="what-is-couchdb"><h2>What is CouchDB?</h2></a>
+<p><a href="https://couchdb.apache.org/">CouchDB</a> is an key-value database written in Erlang, initially released in 2005. It has a simple replication protocol over HTTP, using revisions to ensure eventual consistency.</p>
+<a class="header" href="#why-im-building-my-own" id="why-im-building-my-own"><h2>Why I'm building my own?</h2></a>
+<p>CouchDB leaves me longing for better interoperability with modern browsers. Specifically I want &quot;real time&quot; replication to IndexedDB, which is unpleasant with regular CouchDB. The unpleasantness is mainly due to the revision mechanism, which is fairly Erlang specific. Revisions hashes are calculated using Erlang data structures and md5, both which are not native in browsers. Of course possible to achieve the revision calculation with some extra libraries. Still, I think it will be a fun challenge to implement a modern CouchDB variant after the <em>build your own x</em>-pattern.</p>
+<p>With no further ado, let’s start the journey and look at the objectives.</p>
+<a class="header" href="#objectives" id="objectives"><h2>Objectives</h2></a>
+<p>Decisions made should reflect the main goals, they are:</p>
+<a class="header" href="#goals" id="goals"><h3>Goals</h3></a>
+<ul>
+<li>Easy interoperability with other programming environments.</li>
+<li>Efficient syncing.</li>
+<li>Use modern protocols.</li>
+<li>Availability and Partition tolerance of <a href="https://en.wikipedia.org/wiki/CAP_theorem">CAP</a>.</li>
+</ul>
+<a class="header" href="#non-goals" id="non-goals"><h3>Non goals</h3></a>
+<ul>
+<li>Compatibility with CouchDB.</li>
+<li>Writing low level code.</li>
+<li>Server side lookup.</li>
+<li>Consistency of CAP.</li>
+</ul>
+<a class="header" href="#persistent-storage" id="persistent-storage"><h1>Persistent storage</h1></a>
+<p>Lets start with designing the disk storage format. The non-goal <em>Writing low level code</em> stears off designing a file format and using direct file access. A good alternative is <a href="https://sqlite.org/">SQLite</a>. Lets set it up first.</p>
+<a class="header" href="#bootstrapping-the-project" id="bootstrapping-the-project"><h2>Bootstrapping the project</h2></a>
+<p>I'll call the project <em>sakkosekk</em>, which is Norwegian for bean bag chair.</p>
+<p>Bootstrapping with <a href="https://doc.rust-lang.org/cargo/">Cargo</a>:</p>
+<pre><code class="language-sh">~/g/build-your-own-couchdb $ cargo init sakkosekk
+     Created binary (application) package
+~/g/build-your-own-couchdb $ cd sakkosekk/
+~/g/b/sakkosekk $ cargo run
+   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
+    Finished dev [unoptimized + debuginfo] target(s) in 10.24s
+     Running `target/debug/sakkosekk`
+Hello, world!
+</code></pre>
+<a class="header" href="#adding-sqlite" id="adding-sqlite"><h2>Adding SQLite</h2></a>
+<p>Bindings for SQLite is available through the <a href="https://github.com/jgallagher/rusqlite/">rusqlite</a> crate:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ echo '[dependencies]' &gt;&gt; Cargo.toml
+~/g/b/sakkosekk $ echo 'rusqlite = { version = &quot;0.20&quot;, features = [&quot;bundled&quot;] }' &gt;&gt; Cargo.toml
+</code></pre>
+<p>The <em>bundled</em> feature is enabled for hassle free sqlite3 linking.</p>
+<a class="header" href="#database-schema" id="database-schema"><h2>Database schema</h2></a>
+<p>Documents in the database will have the columns:</p>
+<ul>
+<li>indentifier,</li>
+<li>revision,</li>
+<li>hash and</li>
+<li>document data.</li>
+</ul>
+<p>Open database:</p>
+<pre><pre class="playpen"><code class="language-rust">use rusqlite::{named_params, Connection};
+
+fn main() {
+    let db = Connection::open(&quot;database.sqlite&quot;).expect(&quot;Unable to open 'database.sqlite'.&quot;);
+</code></pre></pre>
+<p>Creating table:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    db.execute_batch(
+        &quot;create table documents (
+            id text primary key not null,
+            revision integer not null,
+            hash blob not null,
+            data text not null
+        )&quot;,
+    )
+    .expect(&quot;Unable to create documents table.&quot;);
+#}</code></pre></pre>
+<p>Inserting document:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    db.execute_named(
+        &quot;insert into documents (id, revision, hash, data)
+        values (:id, :revision, :hash, :data)&quot;,
+        named_params!(
+            &quot;:id&quot;: &quot;asdf&quot;,
+            &quot;:revision&quot;: 0,
+            &quot;:hash&quot;: vec![0u8],
+            &quot;:data&quot;: r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#
+        ),
+    )
+    .expect(&quot;Unable to insert document.&quot;);
+#}</code></pre></pre>
+<p>Reading document by the identifier:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    let data: String = db
+        .query_row_named(
+            &quot;select data from documents where id=:id&quot;,
+            named_params!(&quot;:id&quot;: &quot;asdf&quot;),
+            |row| row.get(0),
+        )
+        .expect(&quot;Unable to get document with id 'asdf'&quot;);
+
+    println!(&quot;data: {}&quot;, data);
+}
+#}</code></pre></pre>
+<p>Result:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.31s
+     Running `target/debug/sakkosekk`
+data: { &quot;a&quot;: 1, &quot;b&quot;: 123 }
+</code></pre>
+<p>Next up is creating abstractions around creating, inserting and reading from the database.</p>
+<a class="header" href="#abstract-database-access" id="abstract-database-access"><h1>Abstract database access</h1></a>
+<p>In the previous chapter, we inserted and read documents directly with rusqlite. To gain cleaner code, lets abstract it away with a type and some methods.</p>
+<a class="header" href="#data-fields" id="data-fields"><h2>Data fields</h2></a>
+<p>Rust provides <em>structs</em> to gather data fields:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+struct Document {
+    id: String,
+    revision: i64,
+    hash: Vec&lt;u8&gt;,
+    data: String,
+}
+#}</code></pre></pre>
+<a class="header" href="#document-methods" id="document-methods"><h2>Document methods</h2></a>
+<p>Methods are implementet on the struct, which is more or less a copy of the previous <code>main</code> function:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Document {
+    fn create_table(db: &amp;Connection) -&gt; Result&lt;(), SqliteError&gt; {
+        db.execute_batch(
+            &quot;create table documents (
+            id text primary key not null,
+            revision integer not null,
+            hash blob not null,
+            data text not null
+        )&quot;,
+        )
+    }
+
+    fn insert(&amp;self, db: &amp;Connection) -&gt; Result&lt;usize, SqliteError&gt; {
+        db.execute_named(
+            &quot;insert into documents (id, revision, hash, data)
+        values (:id, :revision, :hash, :data)&quot;,
+            named_params!(
+                &quot;:id&quot;: &amp;self.id,
+                &quot;:revision&quot;: self.revision,
+                &quot;:hash&quot;: &amp;self.hash,
+                &quot;:data&quot;: &amp;self.data,
+            ),
+        )
+    }
+
+    fn get_by_id(id: &amp;str, db: &amp;Connection) -&gt; Result&lt;Self, SqliteError&gt; {
+        db.query_row_named(
+            &quot;select id, revision, hash, data from documents where id=:id&quot;,
+            named_params!(&quot;:id&quot;: id),
+            Document::row_mapper,
+        )
+    }
+
+    fn row_mapper(row: &amp;Row) -&gt; Result&lt;Self, SqliteError&gt; {
+        Ok(Self {
+            id: row.get(0)?,
+            revision: row.get(1)?,
+            hash: row.get(2)?,
+            data: row.get(3)?,
+        })
+    }
+}
+#}</code></pre></pre>
+<p><code>Row</code> and <code>SqliteError</code> are imported from rusqlite:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+use rusqlite::{named_params, Connection, Error as SqliteError, Row};
+#}</code></pre></pre>
+<a class="header" href="#using-the-document-data-type" id="using-the-document-data-type"><h2>Using the <code>Document</code> data type</h2></a>
+<p>The main function now reduces to:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let db = Connection::open(&quot;database.sqlite&quot;).expect(&quot;Unable to open 'database.sqlite'.&quot;);
+
+    Document::create_table(&amp;db).expect(&quot;Unable to create documents table.&quot;);
+
+    let document = Document {
+        id: String::from(&quot;asdf&quot;),
+        revision: 0,
+        hash: vec![0u8],
+        data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+    };
+
+    document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+
+    let document_from_db = Document::get_by_id(&quot;asdf&quot;, &amp;db)
+        .expect(&quot;Unable to get document with id 'asdf'&quot;);
+
+    println!(&quot;data: {}&quot;, &amp;document_from_db.data);
+}
+</code></pre></pre>
+<a class="header" href="#thread-main-panicked" id="thread-main-panicked"><h2>thread 'main' panicked</h2></a>
+<p>Running the code gives:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/sakkosekk`
+thread 'main' panicked at 'Unable to create documents table.: SqliteFailure(Error { code: Unknown, extended_code: 1 }, Some(&quot;table documents already exists&quot;))', src/libcore/result.rs:999:5
+note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
+~/g/b/sakkosekk [101] $
+</code></pre>
+<p>The code assumes a missing database and fails with exit code 101 when it exists. Removing the database before running:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk (master|✚2) [101] $ rm database.sqlite &amp;&amp; cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/sakkosekk`
+data: { &quot;a&quot;: 1, &quot;b&quot;: 123 }
+</code></pre>
+<p>Next ut is fixing this error.</p>
+<a class="header" href="#create-database-only-when-missing" id="create-database-only-when-missing"><h1>Create database only when missing</h1></a>
+<p>Currently, our application crashes when the database exists. Helper function that checks for existence and only create tables upon an empty database:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn get_db_create_if_missing(filename: &amp;str) -&gt; Connection {
+    // Connection::open will create file if missing, check before.
+    let exists = Path::new(filename).exists();
+
+    let db = Connection::open(filename)
+        .unwrap_or_else(|_| panic!(format!(&quot;Unable to open database file {}&quot;, filename)));
+
+    if !exists {
+        // create schema
+        Document::create_table(&amp;db).expect(&quot;Unable to create documents table.&quot;);
+    }
+
+    db
+}
+#}</code></pre></pre>
+<p><code>Path</code> import:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+use std::path::Path;
+#}</code></pre></pre>
+<p><code>main</code> function simplifies to:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let db = get_db_create_if_missing(&quot;database.sqlite&quot;);
+
+    let document = Document {
+        id: String::from(&quot;asdf&quot;),
+        revision: 0,
+        hash: vec![0u8],
+        data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+    };
+
+    document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+
+    let document_from_db = Document::get_by_id(&quot;asdf&quot;, &amp;db)
+        .expect(&quot;Unable to get document with id 'asdf'&quot;);
+
+    println!(&quot;data: {}&quot;, &amp;document_from_db.data);
+}
+</code></pre></pre>
+<p>The application still crashes, but with a different error:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/sakkosekk`
+thread 'main' panicked at 'Unable to insert document.: SqliteFailure(Error { code: ConstraintViolation, extended_code: 1555 }, Some(&quot;UNIQUE constraint failed: documents.id&quot;))', src/libcore/result.rs:999:5
+note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
+</code></pre>
+<p>We'll fix this by refactoring the main function into tests in the next chapter.</p>
+<a class="header" href="#testing-introduction" id="testing-introduction"><h1>Testing introduction</h1></a>
+<p>Cargo provides a test runner, <code>cargo test</code> which runs functions annotated with <code>#[test]</code>. Lets create a test which checks that <code>get_db_create_if_missing</code> does not crash if called twice, <em>src/tests.rs</em>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[cfg(test)]
+mod database {
+    use crate::*;
+    use std::fs::remove_file;
+
+    #[test]
+    fn creating_database_twice_should_not_fail() {
+        get_db_create_if_missing(&quot;test.sqlite&quot;);
+        get_db_create_if_missing(&quot;test.sqlite&quot;);
+        remove_file(&quot;test.sqlite&quot;).unwrap();
+    }
+}
+#}</code></pre></pre>
+<p>Here, <code>#[cfg(test)]</code> tells Rust that the module should only compile when compiling tests. <code>mod database</code> is a grouping for the database tests.</p>
+<p>Running the test:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo test
+   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.73s
+     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre>
+<p><em>Running 0 tests</em>? We need to add <code>mod tests</code> to <em>src/main.rs</em>, such that the <code>tests</code> module is found:</p>
+<pre><pre class="playpen"><code class="language-rust">use rusqlite::{named_params, Connection, Error as SqliteError, Row};
+use std::path::Path;
+
+mod tests;
+
+fn main() {
+    let db = get_db_create_if_missing(&quot;database.sqlite&quot;);
+...
+</code></pre></pre>
+<p>Really run the test:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo test
+   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.85s
+     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
+
+running 1 test
+test tests::database::creating_database_twice_should_not_fail ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre>
+<a class="header" href="#insertion" id="insertion"><h2>Insertion</h2></a>
+<p>Naivly adding an insertion test:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[cfg(test)]
+mod database {
+    use crate::*;
+    use std::fs::remove_file;
+
+    const TEST_DB_FILENAME: &amp;str = &quot;test.sqlite&quot;;
+
+    #[test]
+    fn creating_database_twice_should_not_fail() {
+        get_db_create_if_missing(TEST_DB_FILENAME);
+        get_db_create_if_missing(TEST_DB_FILENAME);
+        clean_up();
+    }
+
+    #[test]
+    fn insertion() {
+        let db = get_db_create_if_missing(TEST_DB_FILENAME);
+
+        let document = Document {
+            id: String::from(&quot;asdf&quot;),
+            revision: 0,
+            hash: vec![0u8],
+            data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+        };
+
+        document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+
+        clean_up();
+    }
+
+    fn clean_up() {
+        remove_file(TEST_DB_FILENAME).unwrap();
+    }
+}
+#}</code></pre></pre>
+<p>This will fail:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk (master|✚2…) $ cargo test
+   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.14s
+     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
+
+running 2 tests
+test tests::database::insertion ... ok
+test tests::database::creating_database_twice_should_not_fail ... FAILED
+
+failures:
+
+---- tests::database::creating_database_twice_should_not_fail stdout ----
+thread 'tests::database::creating_database_twice_should_not_fail' panicked at 'Unable to create documents table.: SqliteFailure(Error { code: Unknown, extended_code: 1 }, Some(&quot;table documents already exists&quot;))', src/libcore/result.rs:999:5
+note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
+
+
+failures:
+    tests::database::creating_database_twice_should_not_fail
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+error: test failed, to rerun pass '--bin sakkosekk'
+</code></pre>
+<p>The test <code>creating_database_twice_should_not_fail</code> fails, as tests runs in parallel. We'll use a helper function <code>with</code> that:</p>
+<ul>
+<li>takes a filename and a test function,</li>
+<li>creates a database connection,</li>
+<li>runs the given test function with the created database connection,</li>
+<li>and removes the database file.</li>
+</ul>
+<p>Using the function should look like:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+with(&quot;filename.sqlite&quot;, |db| {
+    // use db connection
+});
+// with will clean up / remove the database
+#}</code></pre></pre>
+<p><code>with</code> implementation:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn with&lt;F&gt;(filename: &amp;str, test: F)
+    where
+        F: Fn(Connection) -&gt; (),
+    {
+        let db = get_db_create_if_missing(filename);
+        test(db);
+        remove_file(filename).unwrap();
+    }
+#}</code></pre></pre>
+<p>The tests rewritten to use <code>with</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn creating_database_twice_should_not_fail() {
+        with(&quot;creating_twice.sqlite&quot;, |_| {
+            get_db_create_if_missing(&quot;creating_twice.sqlite&quot;);
+        });
+    }
+
+    #[test]
+    fn insertion() {
+        with(&quot;insertion.sqlite&quot;, |db| {
+            let document = Document {
+                id: String::from(&quot;asdf&quot;),
+                revision: 0,
+                hash: vec![0u8],
+                data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+            };
+
+            document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+        });
+    }
+#}</code></pre></pre>
+<p>Note that the tests use different filenames for the database.</p>
+<p>Running the tests does not fail:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo test
+    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
+
+running 2 tests
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::insertion ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Persistent storage - Build your own CouchDB</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html" class="active"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Build your own CouchDB</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#persistent-storage" id="persistent-storage"><h1>Persistent storage</h1></a>
+<p>Lets start with designing the disk storage format. The non-goal <em>Writing low level code</em> stears off designing a file format and using direct file access. A good alternative is <a href="https://sqlite.org/">SQLite</a>. Lets set it up first.</p>
+<a class="header" href="#bootstrapping-the-project" id="bootstrapping-the-project"><h2>Bootstrapping the project</h2></a>
+<p>I'll call the project <em>sakkosekk</em>, which is Norwegian for bean bag chair.</p>
+<p>Bootstrapping with <a href="https://doc.rust-lang.org/cargo/">Cargo</a>:</p>
+<pre><code class="language-sh">~/g/build-your-own-couchdb $ cargo init sakkosekk
+     Created binary (application) package
+~/g/build-your-own-couchdb $ cd sakkosekk/
+~/g/b/sakkosekk $ cargo run
+   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
+    Finished dev [unoptimized + debuginfo] target(s) in 10.24s
+     Running `target/debug/sakkosekk`
+Hello, world!
+</code></pre>
+<a class="header" href="#adding-sqlite" id="adding-sqlite"><h2>Adding SQLite</h2></a>
+<p>Bindings for SQLite is available through the <a href="https://github.com/jgallagher/rusqlite/">rusqlite</a> crate:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ echo '[dependencies]' &gt;&gt; Cargo.toml
+~/g/b/sakkosekk $ echo 'rusqlite = { version = &quot;0.20&quot;, features = [&quot;bundled&quot;] }' &gt;&gt; Cargo.toml
+</code></pre>
+<p>The <em>bundled</em> feature is enabled for hassle free sqlite3 linking.</p>
+<a class="header" href="#database-schema" id="database-schema"><h2>Database schema</h2></a>
+<p>Documents in the database will have the columns:</p>
+<ul>
+<li>indentifier,</li>
+<li>revision,</li>
+<li>hash and</li>
+<li>document data.</li>
+</ul>
+<p>Open database:</p>
+<pre><pre class="playpen"><code class="language-rust">use rusqlite::{named_params, Connection};
+
+fn main() {
+    let db = Connection::open(&quot;database.sqlite&quot;).expect(&quot;Unable to open 'database.sqlite'.&quot;);
+</code></pre></pre>
+<p>Creating table:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    db.execute_batch(
+        &quot;create table documents (
+            id text primary key not null,
+            revision integer not null,
+            hash blob not null,
+            data text not null
+        )&quot;,
+    )
+    .expect(&quot;Unable to create documents table.&quot;);
+#}</code></pre></pre>
+<p>Inserting document:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    db.execute_named(
+        &quot;insert into documents (id, revision, hash, data)
+        values (:id, :revision, :hash, :data)&quot;,
+        named_params!(
+            &quot;:id&quot;: &quot;asdf&quot;,
+            &quot;:revision&quot;: 0,
+            &quot;:hash&quot;: vec![0u8],
+            &quot;:data&quot;: r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#
+        ),
+    )
+    .expect(&quot;Unable to insert document.&quot;);
+#}</code></pre></pre>
+<p>Reading document by the identifier:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    let data: String = db
+        .query_row_named(
+            &quot;select data from documents where id=:id&quot;,
+            named_params!(&quot;:id&quot;: &quot;asdf&quot;),
+            |row| row.get(0),
+        )
+        .expect(&quot;Unable to get document with id 'asdf'&quot;);
+
+    println!(&quot;data: {}&quot;, data);
+}
+#}</code></pre></pre>
+<p>Result:</p>
+<pre><code class="language-sh">~/g/b/sakkosekk $ cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.31s
+     Running `target/debug/sakkosekk`
+data: { &quot;a&quot;: 1, &quot;b&quot;: 123 }
+</code></pre>
+<p>Next up is creating abstractions around creating, inserting and reading from the database.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="01-introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="03-abstract-database-access.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="01-introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="03-abstract-database-access.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
