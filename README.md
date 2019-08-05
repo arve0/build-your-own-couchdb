@@ -6,6 +6,28 @@ Edit book inside [src](./src/) and code inside [sakkosekk](./sakkosekk/).
 
 Build HTML with mdbook:
 ```sh
-$ cargo install mdbook
-$ mdbook build
+cargo install mdbook
+mdbook build
+```
+
+## Development
+Make sure you have [Rust installed](https://rustup.rs). Source is in [sakkosekk](./sakkosekk/):
+
+```sh
+cd sakkosekk
+```
+
+### Tests
+```sh
+cargo test
+```
+
+### Running
+```sh
+cargo run
+```
+
+### Building
+```sh
+cargo build --release
 ```
