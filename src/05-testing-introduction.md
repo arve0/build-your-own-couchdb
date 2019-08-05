@@ -149,6 +149,8 @@ with("filename.sqlite", |db| {
     }
 ```
 
+**Note:** An alternative `with` is to implement [`Drop`] for our own `Connection`-type.
+
 The tests rewritten to use `with`:
 ```rust
     #[test]
@@ -189,3 +191,5 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
 Next up: Tests that are expected to fail, like inserting a document with the same identifier twice.
+
+[`Drop`]: https://doc.rust-lang.org/std/ops/trait.Drop.html
