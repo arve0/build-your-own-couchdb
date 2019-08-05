@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html" class="active"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li></ol>
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html" class="active"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -239,13 +239,14 @@ thread 'main' panicked at 'Unable to create documents table.: SqliteFailure(Erro
 note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 ~/g/b/sakkosekk [101] $
 </code></pre>
-<p>The code assumes a missing database and fails with exit code 101 when it exists. Removing the database before running:</p>
+<p>The code assumes an empty database and fails with exit code 101.</p>
+<p>Removing the database before running works:</p>
 <pre><code class="language-sh">~/g/b/sakkosekk (master|✚2) [101] $ rm database.sqlite &amp;&amp; cargo run
     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
      Running `target/debug/sakkosekk`
 data: { &quot;a&quot;: 1, &quot;b&quot;: 123 }
 </code></pre>
-<p>Next ut is fixing this error.</p>
+<p>Next up: Fixing this error.</p>
 
                     </main>
 

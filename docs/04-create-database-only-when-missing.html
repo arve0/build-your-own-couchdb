@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html" class="active"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li></ol>
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html" class="active"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -192,7 +192,7 @@ use std::path::Path;
 thread 'main' panicked at 'Unable to insert document.: SqliteFailure(Error { code: ConstraintViolation, extended_code: 1555 }, Some(&quot;UNIQUE constraint failed: documents.id&quot;))', src/libcore/result.rs:999:5
 note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 </code></pre>
-<p>We'll fix this by refactoring the main function into tests in the next chapter.</p>
+<p>Next up: Refactor the main function into tests.</p>
 
                     </main>
 

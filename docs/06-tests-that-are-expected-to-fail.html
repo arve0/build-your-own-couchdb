@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Testing introduction - Build your own CouchDB</title>
+        <title>Tests that are expected to fail - Build your own CouchDB</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html" class="active"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html" class="active"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -140,164 +140,16 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#testing-introduction" id="testing-introduction"><h1>Testing introduction</h1></a>
-<p>Cargo provides a test runner, <code>cargo test</code> which runs functions annotated with <code>#[test]</code>. Lets create a test which checks that <code>get_db_create_if_missing</code> does not crash if called twice, <em>src/tests.rs</em>:</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-#[cfg(test)]
-mod database {
-    use crate::*;
-    use std::fs::remove_file;
-
-    #[test]
-    fn creating_database_twice_should_not_fail() {
-        get_db_create_if_missing(&quot;test.sqlite&quot;);
-        get_db_create_if_missing(&quot;test.sqlite&quot;);
-        remove_file(&quot;test.sqlite&quot;).unwrap();
-    }
-}
-#}</code></pre></pre>
-<p>Here, <code>#[cfg(test)]</code> tells Rust that the module should only compile when compiling tests. <code>mod database</code> is a grouping for the database tests.</p>
-<p>Running the test:</p>
-<pre><code class="language-sh">~/g/b/sakkosekk $ cargo test
-   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.73s
-     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
-</code></pre>
-<p><em>Running 0 tests</em>? We need to add <code>mod tests</code> to <em>src/main.rs</em>, such that the <code>tests</code> module is found:</p>
-<pre><pre class="playpen"><code class="language-rust">use rusqlite::{named_params, Connection, Error as SqliteError, Row};
-use std::path::Path;
-
-mod tests;
-
-fn main() {
-    let db = get_db_create_if_missing(&quot;database.sqlite&quot;);
-...
-</code></pre></pre>
-<p>Really run the test:</p>
-<pre><code class="language-sh">~/g/b/sakkosekk $ cargo test
-   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
-    Finished dev [unoptimized + debuginfo] target(s) in 1.85s
-     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
-
-running 1 test
-test tests::database::creating_database_twice_should_not_fail ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
-</code></pre>
-<a class="header" href="#insertion" id="insertion"><h2>Insertion</h2></a>
-<p>Naivly adding an insertion test:</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-#[cfg(test)]
-mod database {
-    use crate::*;
-    use std::fs::remove_file;
-
-    const TEST_DB_FILENAME: &amp;str = &quot;test.sqlite&quot;;
-
-    #[test]
-    fn creating_database_twice_should_not_fail() {
-        get_db_create_if_missing(TEST_DB_FILENAME);
-        get_db_create_if_missing(TEST_DB_FILENAME);
-        clean_up();
-    }
-
-    #[test]
-    fn insertion() {
-        let db = get_db_create_if_missing(TEST_DB_FILENAME);
-
-        let document = Document {
-            id: String::from(&quot;asdf&quot;),
-            revision: 0,
-            hash: vec![0u8],
-            data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
-        };
-
-        document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
-
-        clean_up();
-    }
-
-    fn clean_up() {
-        remove_file(TEST_DB_FILENAME).unwrap();
-    }
-}
-#}</code></pre></pre>
-<p>This will fail:</p>
-<pre><code class="language-sh">~/g/b/sakkosekk (master|✚2…) $ cargo test
-   Compiling sakkosekk v0.1.0 (/Users/arve/git/build-your-own-couchdb/sakkosekk)
-    Finished dev [unoptimized + debuginfo] target(s) in 1.14s
-     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
-
-running 2 tests
-test tests::database::insertion ... ok
-test tests::database::creating_database_twice_should_not_fail ... FAILED
-
-failures:
-
----- tests::database::creating_database_twice_should_not_fail stdout ----
-thread 'tests::database::creating_database_twice_should_not_fail' panicked at 'Unable to create documents table.: SqliteFailure(Error { code: Unknown, extended_code: 1 }, Some(&quot;table documents already exists&quot;))', src/libcore/result.rs:999:5
-note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
-
-
-failures:
-    tests::database::creating_database_twice_should_not_fail
-
-test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
-
-error: test failed, to rerun pass '--bin sakkosekk'
-</code></pre>
-<p>The test <code>creating_database_twice_should_not_fail</code> fails, as tests runs in parallel. We'll use a helper function <code>with</code> that:</p>
-<ul>
-<li>takes a filename and a test function,</li>
-<li>creates a database connection,</li>
-<li>runs the given test function with the created database connection,</li>
-<li>and removes the database file.</li>
-</ul>
-<p>Using the function should look like:</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-with(&quot;filename.sqlite&quot;, |db| {
-    // use db connection
-});
-// with will clean up / remove the database
-#}</code></pre></pre>
-<p><code>with</code> implementation:</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-    fn with&lt;F&gt;(filename: &amp;str, test: F)
-    where
-        F: Fn(Connection) -&gt; (),
-    {
-        let db = get_db_create_if_missing(filename);
-        test(db);
-        remove_file(filename).unwrap();
-    }
-#}</code></pre></pre>
-<p><strong>Note:</strong> An alternative <code>with</code> is to implement <a href="https://doc.rust-lang.org/std/ops/trait.Drop.html"><code>Drop</code></a> for our own <code>Connection</code>-type.</p>
-<p>The tests rewritten to use <code>with</code>:</p>
+                        <a class="header" href="#tests-that-are-expected-to-fail" id="tests-that-are-expected-to-fail"><h1>Tests that are expected to fail</h1></a>
+<p>We could make our tests panic and annotate tests with <code>#[should_panic]</code>, but as our methods return <code>Result</code>, the <a href="https://doc.rust-lang.org/std/result/enum.Result.html#method.is_err"><code>is_err</code></a> method tells us that the correct method call failed.</p>
+<a class="header" href="#insertion-failure" id="insertion-failure"><h2>Insertion failure</h2></a>
+<p>A double insertion of the same document should fail:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
     #[test]
-    fn creating_database_twice_should_not_fail() {
-        with(&quot;creating_twice.sqlite&quot;, |_| {
-            get_db_create_if_missing(&quot;creating_twice.sqlite&quot;);
-        });
-    }
-
-    #[test]
-    fn insertion() {
-        with(&quot;insertion.sqlite&quot;, |db| {
+    fn double_insertion_should_fail() {
+        with(&quot;double_insertion.sqlite&quot;, |db| {
             let document = Document {
                 id: String::from(&quot;asdf&quot;),
                 revision: 0,
@@ -306,35 +158,133 @@ with(&quot;filename.sqlite&quot;, |db| {
             };
 
             document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            let second_insert_result = document.insert(&amp;db);
+            assert!(second_insert_result.is_err());
         });
     }
 #}</code></pre></pre>
-<p>Note that the tests use different filenames for the database.</p>
-<p>Running the tests does not fail:</p>
-<pre><code class="language-sh">~/g/b/sakkosekk $ cargo test
-    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
-     Running target/debug/deps/sakkosekk-5d572632b2e9bfcc
+<p>Actually, this test is wrong. In CouchDB a document can have many revisions, making <code>id</code>, <code>revision</code> and <code>hash</code> unique.</p>
+<a class="header" href="#insertion-failure-only-when-same-revision" id="insertion-failure-only-when-same-revision"><h2>Insertion failure only when same revision</h2></a>
+<p>This fails as expected:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn insert_multiple_revisions() {
+        with(&quot;insert_multiple_revisions.sqlite&quot;, |db| {
+            let insert = |revision: i64| {
+                let document = Document {
+                    id: String::from(&quot;asdf&quot;),
+                    revision: revision,
+                    hash: vec![0u8],
+                    data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+                };
 
-running 2 tests
+                document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            };
+
+            insert(0);
+            insert(1);
+        });
+    }
+#}</code></pre></pre>
+<p>We'll fix it by removing <code>primary key</code> from <code>id</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn create_table(db: &amp;Connection) -&gt; Result&lt;(), SqliteError&gt; {
+        db.execute_batch(
+            &quot;create table documents (
+            id text not null,
+            revision integer not null,
+            hash blob not null,
+            data text not null
+        )&quot;,
+        )
+    }
+#}</code></pre></pre>
+<p>Running tests again does not seem to have fixed <code>insert_multiple_revisions</code>, also <code>double_insertion_should_fail</code> fails now:</p>
+<pre><code>running 4 tests
 test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::insert_multiple_revisions ... FAILED
+test tests::database::double_insertion_should_fail ... FAILED
 test tests::database::insertion ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 </code></pre>
-<p>Next up: Tests that are expected to fail, like inserting a document with the same identifier twice.</p>
+<p>As the tests paniced, <code>remove_file</code> in <code>with</code> never runs. Fix it by removing file before opening:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn with&lt;F&gt;(filename: &amp;str, test: F)
+    where
+        F: Fn(Connection) -&gt; (),
+    {
+        remove_file(filename).unwrap_or(());
+        let db = get_db_create_if_missing(filename);
+        test(db);
+        remove_file(filename).unwrap();
+    }
+#}</code></pre></pre>
+<p><code>unwrap_or(())</code> ignores any errors in deleting the file.</p>
+<p>Running tests again:</p>
+<pre><code>running 4 tests
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::double_insertion_should_fail ... FAILED
+test tests::database::insert_multiple_revisions ... ok
+test tests::database::insertion ... ok
+</code></pre>
+<p><code>insert_multiple_revisions</code> is OK, but <code>double_insertion_should_fail</code> is still failing. It fails as <code>primary key</code> constraint was removed.</p>
+<p>Adding a unique constraint should fix id:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn create_table(db: &amp;Connection) -&gt; Result&lt;(), SqliteError&gt; {
+        db.execute_batch(
+            &quot;create table documents (
+                id text not null,
+                revision integer not null,
+                hash blob not null,
+                data text not null,
+                unique(id, revision, hash)
+            );
+            &quot;,
+        )
+    }
+#}</code></pre></pre>
+<a class="header" href="#get-non-existent-document" id="get-non-existent-document"><h2>Get non-existent document</h2></a>
+<p>Getting a missing document should fail:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn get_by_missing_id_should_fail() {
+        with(&quot;get_by_id_missing.sqlite&quot;, |db| {
+            let result = Document::get_by_id(&quot;asdf&quot;, &amp;db);
+            assert!(result.is_err());
+        });
+    }
+#}</code></pre></pre>
+<p>Make sure all tests pass:</p>
+<pre><code>running 5 tests
+test tests::database::get_by_missing_id_should_fail ... ok
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::double_insertion_should_fail ... ok
+test tests::database::insert_multiple_revisions ... ok
+test tests::database::insertion ... ok
+</code></pre>
+<p>Next up: Get by id should return all revisions of document.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="04-create-database-only-when-missing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="05-testing-introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="06-tests-that-are-expected-to-fail.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="07-getting-all-revisions-of-document.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -346,13 +296,13 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="04-create-database-only-when-missing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="05-testing-introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="06-tests-that-are-expected-to-fail.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="07-getting-all-revisions-of-document.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

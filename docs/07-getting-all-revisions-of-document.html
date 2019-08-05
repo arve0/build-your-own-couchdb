@@ -1,0 +1,355 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Gettting all revisions of document - Build your own CouchDB</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html" class="active"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Build your own CouchDB</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#getting-all-revisions-of-document" id="getting-all-revisions-of-document"><h1>Getting all revisions of document</h1></a>
+<p>In <a href="./02-persistent-storage.html">Persistent storage</a> we naively used <code>id</code> to look up a single document, but a document can have multiple revisions. In other words, <code>Document::get_by_id</code> should return a list of documents.</p>
+<a class="header" href="#refactoring-tests" id="refactoring-tests"><h2>Refactoring tests</h2></a>
+<p>First, the tests are repeating themself. Currently the tests <code>insertion</code>, <code>double_insertion_should_fail</code> and <code>insert_multiple_revisions</code> are all repeating declaration of a <code>document</code>.</p>
+<p>Move document declaration into a function:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn get_document(revision: i64) -&gt; Document {
+        Document {
+            id: String::from(&quot;asdf&quot;),
+            revision: revision,
+            hash: vec![0u8],
+            data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+        }
+    }
+#}</code></pre></pre>
+<p>Tests refactored to use <code>get_document</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn insertion() {
+        with(&quot;insertion.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+        });
+    }
+
+    #[test]
+    fn double_insertion_should_fail() {
+        with(&quot;double_insertion.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            let second_insert_result = get_document(0).insert(&amp;db);
+            assert!(second_insert_result.is_err());
+        });
+    }
+
+    #[test]
+    fn insert_multiple_revisions() {
+        with(&quot;insert_multiple_revisions.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            get_document(1).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+        });
+    }
+
+#}</code></pre></pre>
+<a class="header" href="#get-document-by-identifier-test" id="get-document-by-identifier-test"><h2>Get document by identifier test</h2></a>
+<p>Now the test for <code>Document::get_by_id</code>, using <code>get_document</code>. The test should check that <code>Document::get_by_id</code> returns all documents:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn get_by_id() {
+        with(&quot;get_by_id.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            get_document(1).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+
+            let documents_from_db = Document::get_by_id(&quot;asdf&quot;, &amp;db);
+
+            assert!(documents_from_db == [get_document(0), get_document(1)]);
+        });
+    }
+#}</code></pre></pre>
+<p>This fails compiling for two reasons. Lets takle number one first; <code>Document</code> does not implement the method <code>eq</code> from the [<code>PartialEq</code> trait].</p>
+<p>Error message:</p>
+<pre><code>error[E0369]: binary operation `==` cannot be applied to type `std::result::Result&lt;Document, rusqlite::error::Error&gt;`
+  --&gt; src/tests.rs:53:39
+   |
+53 |             assert!(documents_from_db == Ok([get_document(0), get_document(1)]));
+   |                     ----------------- ^^ -------------------------------------- std::result::Result&lt;[Document; 2], _&gt;
+   |                     |
+   |                     std::result::Result&lt;Document, rusqlite::error::Error&gt;
+   |
+   = note: an implementation of `std::cmp::PartialEq` might be missing for `std::result::Result&lt;Document, rusqlite::error::Error&gt;`
+</code></pre>
+<p>As all fields in <code>Document</code> implements <code>PartialEq</code>, we can derive <code>PartialEq</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[derive(PartialEq)]
+struct Document {
+    id: String,
+    revision: i64,
+    hash: Vec&lt;u8&gt;,
+    data: String,
+}
+#}</code></pre></pre>
+<p>Now, <code>cargo tests</code> yields the other error:</p>
+<pre><code>error[E0308]: mismatched types
+  --&gt; src/tests.rs:53:45
+   |
+53 |             assert!(documents_from_db == Ok([get_document(0), get_document(1)]));
+   |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected struct `Document`, found array of 2 elements
+   |
+   = note: expected type `Document`
+              found type `[Document; 2]`
+</code></pre>
+<p><code>query_row_named</code> only returns a single row. <a href="https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html"><code>Statement</code></a> provides <a href="https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html#method.query_map_named"><code>query_map_named</code></a> that gives more then one row. [<code>Connection::prepare</code>] yields a <code>Statement</code>.</p>
+<p><code>Document::get_by_id</code> rewritten to use a <code>Statement</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn get_by_id(id: &amp;str, db: &amp;Connection) -&gt; Result&lt;Vec&lt;Self&gt;, SqliteError&gt; {
+        db.prepare(&quot;select id, revision, hash, data from documents where id=:id&quot;)?
+            .query_map_named(named_params!(&quot;:id&quot;: id), Document::row_mapper)?
+            .collect()
+    }
+#}</code></pre></pre>
+<p><code>cargo tests</code> gives a compilation error:</p>
+<pre><code>error[E0609]: no field `data` on type `std::vec::Vec&lt;Document&gt;`
+  --&gt; src/main.rs:21:44
+   |
+21 |     println!(&quot;data: {}&quot;, &amp;document_from_db.data);
+   |                                            ^^^^ unknown field
+</code></pre>
+<p>As <code>get_by_id</code> have a new return signature and <code>Vec</code> does not have a <code>data</code>-field. Fix it by removing the line.</p>
+<p>Running tests shows that <code>get_by_missing_id</code> is failing:</p>
+<pre><code>running 5 tests
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::get_by_missing_id_should_fail ... FAILED
+test tests::database::double_insertion_should_fail ... ok
+test tests::database::insert_multiple_revisions ... ok
+test tests::database::insertion ... ok
+</code></pre>
+<p>Fix the test by having it expect an empty vector:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn get_by_missing_id_should_give_no_results() {
+        with(&quot;get_by_id_missing.sqlite&quot;, |db| {
+            let documents = Document::get_by_id(&quot;asdf&quot;, &amp;db).expect(&quot;Unable to get documents.&quot;);
+            assert!(documents.is_empty());
+        });
+    }
+#}</code></pre></pre>
+<a class="header" href="#understanding-get_by_id" id="understanding-get_by_id"><h3>Understanding <code>get_by_id</code></h3></a>
+<p>A lot happens in <code>get_by_id</code>. Looking at the types can help in understanding the code.</p>
+<ol start="0">
+<li><code>Result&lt;T&gt;</code> is here <code>rusqlite::Result&lt;T&gt;</code>, which is equivalent to <code>std::result::Result&lt;T, rusqlite::Error&gt;</code>.</li>
+<li><code>prepare</code> returns <code>Result&lt;Statement&gt;</code>.</li>
+<li>The question mark <code>?</code> translates to <em>unwrap result or exit early with error</em>.</li>
+<li><code>?</code> unwraps <code>Statement</code>.</li>
+<li><code>query_map_named</code> returns <code>Result&lt;MappedRows&gt;</code>.</li>
+<li><code>?</code> unwraps <code>MappedRows</code>.</li>
+<li><code>MappedRows</code> implements <code>IntoIterator</code>, giving us <code>Iterator&lt;Result&lt;Document&gt;&gt;</code>.</li>
+<li><code>Iterator::collect</code> uses the return signature, <code>Result&lt;Vec&lt;Self&gt;, SqliteError&gt;</code>, and unwraps <code>Result&lt;Document&gt;</code> one by one, exiting early if one of them fails.</li>
+</ol>
+<a class="header" href="#note-on-compiler-warnings" id="note-on-compiler-warnings"><h3>Note on compiler warnings</h3></a>
+<p>You might have noticed compiler warnings like:</p>
+<pre><code>warning: unused variable: `db`
+ --&gt; src/main.rs:7:9
+  |
+7 |     let db = get_db_create_if_missing(&quot;database.sqlite&quot;);
+  |         ^^ help: consider prefixing with an underscore: `_db`
+  |
+  = note: #[warn(unused_variables)] on by default
+</code></pre>
+<p>We'll fix these warnings later when using the database interface in our actual application.</p>
+<p><strong>Next up:</strong> Benchmarking</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="06-tests-that-are-expected-to-fail.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="06-tests-that-are-expected-to-fail.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li></ol>
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -249,7 +249,7 @@ fn main() {
      Running `target/debug/sakkosekk`
 data: { &quot;a&quot;: 1, &quot;b&quot;: 123 }
 </code></pre>
-<p>Next up is creating abstractions around creating, inserting and reading from the database.</p>
+<p>Next up: Abstractions around creating the database schema, inserting documents and reading documents.</p>
 <a class="header" href="#abstract-database-access" id="abstract-database-access"><h1>Abstract database access</h1></a>
 <p>In the previous chapter, we inserted and read documents directly with rusqlite. To gain cleaner code, lets abstract it away with a type and some methods.</p>
 <a class="header" href="#data-fields" id="data-fields"><h2>Data fields</h2></a>
@@ -349,13 +349,14 @@ thread 'main' panicked at 'Unable to create documents table.: SqliteFailure(Erro
 note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 ~/g/b/sakkosekk [101] $
 </code></pre>
-<p>The code assumes a missing database and fails with exit code 101 when it exists. Removing the database before running:</p>
+<p>The code assumes an empty database and fails with exit code 101.</p>
+<p>Removing the database before running works:</p>
 <pre><code class="language-sh">~/g/b/sakkosekk (master|✚2) [101] $ rm database.sqlite &amp;&amp; cargo run
     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
      Running `target/debug/sakkosekk`
 data: { &quot;a&quot;: 1, &quot;b&quot;: 123 }
 </code></pre>
-<p>Next ut is fixing this error.</p>
+<p>Next up: Fixing this error.</p>
 <a class="header" href="#create-database-only-when-missing" id="create-database-only-when-missing"><h1>Create database only when missing</h1></a>
 <p>Currently, our application crashes when the database exists. Helper function that checks for existence and only create tables upon an empty database:</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -408,7 +409,7 @@ use std::path::Path;
 thread 'main' panicked at 'Unable to insert document.: SqliteFailure(Error { code: ConstraintViolation, extended_code: 1555 }, Some(&quot;UNIQUE constraint failed: documents.id&quot;))', src/libcore/result.rs:999:5
 note: Run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 </code></pre>
-<p>We'll fix this by refactoring the main function into tests in the next chapter.</p>
+<p>Next up: Refactor the main function into tests.</p>
 <a class="header" href="#testing-introduction" id="testing-introduction"><h1>Testing introduction</h1></a>
 <p>Cargo provides a test runner, <code>cargo test</code> which runs functions annotated with <code>#[test]</code>. Lets create a test which checks that <code>get_db_create_if_missing</code> does not crash if called twice, <em>src/tests.rs</em>:</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -552,6 +553,7 @@ with(&quot;filename.sqlite&quot;, |db| {
         remove_file(filename).unwrap();
     }
 #}</code></pre></pre>
+<p><strong>Note:</strong> An alternative <code>with</code> is to implement <a href="https://doc.rust-lang.org/std/ops/trait.Drop.html"><code>Drop</code></a> for our own <code>Connection</code>-type.</p>
 <p>The tests rewritten to use <code>with</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -589,6 +591,299 @@ test tests::database::insertion ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 </code></pre>
+<p>Next up: Tests that are expected to fail, like inserting a document with the same identifier twice.</p>
+<a class="header" href="#tests-that-are-expected-to-fail" id="tests-that-are-expected-to-fail"><h1>Tests that are expected to fail</h1></a>
+<p>We could make our tests panic and annotate tests with <code>#[should_panic]</code>, but as our methods return <code>Result</code>, the <a href="https://doc.rust-lang.org/std/result/enum.Result.html#method.is_err"><code>is_err</code></a> method tells us that the correct method call failed.</p>
+<a class="header" href="#insertion-failure" id="insertion-failure"><h2>Insertion failure</h2></a>
+<p>A double insertion of the same document should fail:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn double_insertion_should_fail() {
+        with(&quot;double_insertion.sqlite&quot;, |db| {
+            let document = Document {
+                id: String::from(&quot;asdf&quot;),
+                revision: 0,
+                hash: vec![0u8],
+                data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+            };
+
+            document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            let second_insert_result = document.insert(&amp;db);
+            assert!(second_insert_result.is_err());
+        });
+    }
+#}</code></pre></pre>
+<p>Actually, this test is wrong. In CouchDB a document can have many revisions, making <code>id</code>, <code>revision</code> and <code>hash</code> unique.</p>
+<a class="header" href="#insertion-failure-only-when-same-revision" id="insertion-failure-only-when-same-revision"><h2>Insertion failure only when same revision</h2></a>
+<p>This fails as expected:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn insert_multiple_revisions() {
+        with(&quot;insert_multiple_revisions.sqlite&quot;, |db| {
+            let insert = |revision: i64| {
+                let document = Document {
+                    id: String::from(&quot;asdf&quot;),
+                    revision: revision,
+                    hash: vec![0u8],
+                    data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+                };
+
+                document.insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            };
+
+            insert(0);
+            insert(1);
+        });
+    }
+#}</code></pre></pre>
+<p>We'll fix it by removing <code>primary key</code> from <code>id</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn create_table(db: &amp;Connection) -&gt; Result&lt;(), SqliteError&gt; {
+        db.execute_batch(
+            &quot;create table documents (
+            id text not null,
+            revision integer not null,
+            hash blob not null,
+            data text not null
+        )&quot;,
+        )
+    }
+#}</code></pre></pre>
+<p>Running tests again does not seem to have fixed <code>insert_multiple_revisions</code>, also <code>double_insertion_should_fail</code> fails now:</p>
+<pre><code>running 4 tests
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::insert_multiple_revisions ... FAILED
+test tests::database::double_insertion_should_fail ... FAILED
+test tests::database::insertion ... ok
+</code></pre>
+<p>As the tests paniced, <code>remove_file</code> in <code>with</code> never runs. Fix it by removing file before opening:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn with&lt;F&gt;(filename: &amp;str, test: F)
+    where
+        F: Fn(Connection) -&gt; (),
+    {
+        remove_file(filename).unwrap_or(());
+        let db = get_db_create_if_missing(filename);
+        test(db);
+        remove_file(filename).unwrap();
+    }
+#}</code></pre></pre>
+<p><code>unwrap_or(())</code> ignores any errors in deleting the file.</p>
+<p>Running tests again:</p>
+<pre><code>running 4 tests
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::double_insertion_should_fail ... FAILED
+test tests::database::insert_multiple_revisions ... ok
+test tests::database::insertion ... ok
+</code></pre>
+<p><code>insert_multiple_revisions</code> is OK, but <code>double_insertion_should_fail</code> is still failing. It fails as <code>primary key</code> constraint was removed.</p>
+<p>Adding a unique constraint should fix id:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn create_table(db: &amp;Connection) -&gt; Result&lt;(), SqliteError&gt; {
+        db.execute_batch(
+            &quot;create table documents (
+                id text not null,
+                revision integer not null,
+                hash blob not null,
+                data text not null,
+                unique(id, revision, hash)
+            );
+            &quot;,
+        )
+    }
+#}</code></pre></pre>
+<a class="header" href="#get-non-existent-document" id="get-non-existent-document"><h2>Get non-existent document</h2></a>
+<p>Getting a missing document should fail:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn get_by_missing_id_should_fail() {
+        with(&quot;get_by_id_missing.sqlite&quot;, |db| {
+            let result = Document::get_by_id(&quot;asdf&quot;, &amp;db);
+            assert!(result.is_err());
+        });
+    }
+#}</code></pre></pre>
+<p>Make sure all tests pass:</p>
+<pre><code>running 5 tests
+test tests::database::get_by_missing_id_should_fail ... ok
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::double_insertion_should_fail ... ok
+test tests::database::insert_multiple_revisions ... ok
+test tests::database::insertion ... ok
+</code></pre>
+<p>Next up: Get by id should return all revisions of document.</p>
+<a class="header" href="#getting-all-revisions-of-document" id="getting-all-revisions-of-document"><h1>Getting all revisions of document</h1></a>
+<p>In <a href="./02-persistent-storage.html">Persistent storage</a> we naively used <code>id</code> to look up a single document, but a document can have multiple revisions. In other words, <code>Document::get_by_id</code> should return a list of documents.</p>
+<a class="header" href="#refactoring-tests" id="refactoring-tests"><h2>Refactoring tests</h2></a>
+<p>First, the tests are repeating themself. Currently the tests <code>insertion</code>, <code>double_insertion_should_fail</code> and <code>insert_multiple_revisions</code> are all repeating declaration of a <code>document</code>.</p>
+<p>Move document declaration into a function:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn get_document(revision: i64) -&gt; Document {
+        Document {
+            id: String::from(&quot;asdf&quot;),
+            revision: revision,
+            hash: vec![0u8],
+            data: String::from(r#&quot;{ &quot;a&quot;: 1, &quot;b&quot;: 123 }&quot;#),
+        }
+    }
+#}</code></pre></pre>
+<p>Tests refactored to use <code>get_document</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn insertion() {
+        with(&quot;insertion.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+        });
+    }
+
+    #[test]
+    fn double_insertion_should_fail() {
+        with(&quot;double_insertion.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            let second_insert_result = get_document(0).insert(&amp;db);
+            assert!(second_insert_result.is_err());
+        });
+    }
+
+    #[test]
+    fn insert_multiple_revisions() {
+        with(&quot;insert_multiple_revisions.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            get_document(1).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+        });
+    }
+
+#}</code></pre></pre>
+<a class="header" href="#get-document-by-identifier-test" id="get-document-by-identifier-test"><h2>Get document by identifier test</h2></a>
+<p>Now the test for <code>Document::get_by_id</code>, using <code>get_document</code>. The test should check that <code>Document::get_by_id</code> returns all documents:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn get_by_id() {
+        with(&quot;get_by_id.sqlite&quot;, |db| {
+            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            get_document(1).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+
+            let documents_from_db = Document::get_by_id(&quot;asdf&quot;, &amp;db);
+
+            assert!(documents_from_db == [get_document(0), get_document(1)]);
+        });
+    }
+#}</code></pre></pre>
+<p>This fails compiling for two reasons. Lets takle number one first; <code>Document</code> does not implement the method <code>eq</code> from the [<code>PartialEq</code> trait].</p>
+<p>Error message:</p>
+<pre><code>error[E0369]: binary operation `==` cannot be applied to type `std::result::Result&lt;Document, rusqlite::error::Error&gt;`
+  --&gt; src/tests.rs:53:39
+   |
+53 |             assert!(documents_from_db == Ok([get_document(0), get_document(1)]));
+   |                     ----------------- ^^ -------------------------------------- std::result::Result&lt;[Document; 2], _&gt;
+   |                     |
+   |                     std::result::Result&lt;Document, rusqlite::error::Error&gt;
+   |
+   = note: an implementation of `std::cmp::PartialEq` might be missing for `std::result::Result&lt;Document, rusqlite::error::Error&gt;`
+</code></pre>
+<p>As all fields in <code>Document</code> implements <code>PartialEq</code>, we can derive <code>PartialEq</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[derive(PartialEq)]
+struct Document {
+    id: String,
+    revision: i64,
+    hash: Vec&lt;u8&gt;,
+    data: String,
+}
+#}</code></pre></pre>
+<p>Now, <code>cargo tests</code> yields the other error:</p>
+<pre><code>error[E0308]: mismatched types
+  --&gt; src/tests.rs:53:45
+   |
+53 |             assert!(documents_from_db == Ok([get_document(0), get_document(1)]));
+   |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected struct `Document`, found array of 2 elements
+   |
+   = note: expected type `Document`
+              found type `[Document; 2]`
+</code></pre>
+<p><code>query_row_named</code> only returns a single row. <a href="https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html"><code>Statement</code></a> provides <a href="https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html#method.query_map_named"><code>query_map_named</code></a> that gives more then one row. [<code>Connection::prepare</code>] yields a <code>Statement</code>.</p>
+<p><code>Document::get_by_id</code> rewritten to use a <code>Statement</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    fn get_by_id(id: &amp;str, db: &amp;Connection) -&gt; Result&lt;Vec&lt;Self&gt;, SqliteError&gt; {
+        db.prepare(&quot;select id, revision, hash, data from documents where id=:id&quot;)?
+            .query_map_named(named_params!(&quot;:id&quot;: id), Document::row_mapper)?
+            .collect()
+    }
+#}</code></pre></pre>
+<p><code>cargo tests</code> gives a compilation error:</p>
+<pre><code>error[E0609]: no field `data` on type `std::vec::Vec&lt;Document&gt;`
+  --&gt; src/main.rs:21:44
+   |
+21 |     println!(&quot;data: {}&quot;, &amp;document_from_db.data);
+   |                                            ^^^^ unknown field
+</code></pre>
+<p>As <code>get_by_id</code> have a new return signature and <code>Vec</code> does not have a <code>data</code>-field. Fix it by removing the line.</p>
+<p>Running tests shows that <code>get_by_missing_id</code> is failing:</p>
+<pre><code>running 5 tests
+test tests::database::creating_database_twice_should_not_fail ... ok
+test tests::database::get_by_missing_id_should_fail ... FAILED
+test tests::database::double_insertion_should_fail ... ok
+test tests::database::insert_multiple_revisions ... ok
+test tests::database::insertion ... ok
+</code></pre>
+<p>Fix the test by having it expect an empty vector:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+    #[test]
+    fn get_by_missing_id_should_give_no_results() {
+        with(&quot;get_by_id_missing.sqlite&quot;, |db| {
+            let documents = Document::get_by_id(&quot;asdf&quot;, &amp;db).expect(&quot;Unable to get documents.&quot;);
+            assert!(documents.is_empty());
+        });
+    }
+#}</code></pre></pre>
+<a class="header" href="#understanding-get_by_id" id="understanding-get_by_id"><h3>Understanding <code>get_by_id</code></h3></a>
+<p>A lot happens in <code>get_by_id</code>. Looking at the types can help in understanding the code.</p>
+<ol start="0">
+<li><code>Result&lt;T&gt;</code> is here <code>rusqlite::Result&lt;T&gt;</code>, which is equivalent to <code>std::result::Result&lt;T, rusqlite::Error&gt;</code>.</li>
+<li><code>prepare</code> returns <code>Result&lt;Statement&gt;</code>.</li>
+<li>The question mark <code>?</code> translates to <em>unwrap result or exit early with error</em>.</li>
+<li><code>?</code> unwraps <code>Statement</code>.</li>
+<li><code>query_map_named</code> returns <code>Result&lt;MappedRows&gt;</code>.</li>
+<li><code>?</code> unwraps <code>MappedRows</code>.</li>
+<li><code>MappedRows</code> implements <code>IntoIterator</code>, giving us <code>Iterator&lt;Result&lt;Document&gt;&gt;</code>.</li>
+<li><code>Iterator::collect</code> uses the return signature, <code>Result&lt;Vec&lt;Self&gt;, SqliteError&gt;</code>, and unwraps <code>Result&lt;Document&gt;</code> one by one, exiting early if one of them fails.</li>
+</ol>
+<a class="header" href="#note-on-compiler-warnings" id="note-on-compiler-warnings"><h3>Note on compiler warnings</h3></a>
+<p>You might have noticed compiler warnings like:</p>
+<pre><code>warning: unused variable: `db`
+ --&gt; src/main.rs:7:9
+  |
+7 |     let db = get_db_create_if_missing(&quot;database.sqlite&quot;);
+  |         ^^ help: consider prefixing with an underscore: `_db`
+  |
+  = note: #[warn(unused_variables)] on by default
+</code></pre>
+<p>We'll fix these warnings later when using the database interface in our actual application.</p>
+<p><strong>Next up:</strong> Benchmarking</p>
 
                     </main>
 
