@@ -51,12 +51,16 @@ Now the test for `Document::get_by_id`, using `get_document`. The test should ch
     #[test]
     fn get_by_id() {
         with("get_by_id.sqlite", |db| {
-            get_document(0).insert(&db).expect("Unable to insert document.");
-            get_document(1).insert(&db).expect("Unable to insert document.");
+            get_document(0)
+                .insert(&db)
+                .expect("Unable to insert document.");
+            get_document(1)
+                .insert(&db)
+                .expect("Unable to insert document.");
 
             let documents_from_db = Document::get_by_id("asdf", &db);
 
-            assert!(documents_from_db == [get_document(0), get_document(1)]);
+            assert!(documents_from_db == Ok(vec![get_document(0), get_document(1)]));
         });
     }
 ```
