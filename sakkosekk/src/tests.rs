@@ -51,6 +51,7 @@ mod database {
         });
     }
 
+    #[test]
     fn get_by_id() {
         with("get_by_id.sqlite", |db| {
             get_document(0)
