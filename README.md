@@ -31,3 +31,8 @@ cargo run
 ```sh
 cargo build --release
 ```
+
+Binary in `./target/release/`:
+```sh
+./target/release/sakkosekk
+```
