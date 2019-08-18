@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html" class="active"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li></ol>
+            <ol class="chapter"><li><a href="01-introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02-persistent-storage.html"><strong aria-hidden="true">2.</strong> Persistent storage</a></li><li><a href="03-abstract-database-access.html"><strong aria-hidden="true">3.</strong> Abstract database access</a></li><li><a href="04-create-database-only-when-missing.html"><strong aria-hidden="true">4.</strong> Create database only when missing</a></li><li><a href="05-testing-introduction.html"><strong aria-hidden="true">5.</strong> Testing introduction</a></li><li><a href="06-tests-that-are-expected-to-fail.html"><strong aria-hidden="true">6.</strong> Tests that are expected to fail</a></li><li><a href="07-getting-all-revisions-of-document.html" class="active"><strong aria-hidden="true">7.</strong> Gettting all revisions of document</a></li><li><a href="08-benchmarking.html"><strong aria-hidden="true">8.</strong> Bencmarking</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -194,12 +194,16 @@
     #[test]
     fn get_by_id() {
         with(&quot;get_by_id.sqlite&quot;, |db| {
-            get_document(0).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
-            get_document(1).insert(&amp;db).expect(&quot;Unable to insert document.&quot;);
+            get_document(0)
+                .insert(&amp;db)
+                .expect(&quot;Unable to insert document.&quot;);
+            get_document(1)
+                .insert(&amp;db)
+                .expect(&quot;Unable to insert document.&quot;);
 
             let documents_from_db = Document::get_by_id(&quot;asdf&quot;, &amp;db);
 
-            assert!(documents_from_db == [get_document(0), get_document(1)]);
+            assert!(documents_from_db == Ok(vec![get_document(0), get_document(1)]));
         });
     }
 #}</code></pre></pre>
@@ -312,6 +316,10 @@ test tests::database::insertion ... ok
                         
 
                         
+                            <a rel="next" href="08-benchmarking.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -325,6 +333,10 @@ test tests::database::insertion ... ok
                     </a>
                 
 
+                
+                    <a href="08-benchmarking.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 
