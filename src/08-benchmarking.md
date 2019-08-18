@@ -190,7 +190,7 @@ get documents by id     time:   [26.169 us 26.702 us 27.417 us]
                         No change in performance detected.
 ```
 
-No performance detencted. Lets investigate with the SQLite REPL:
+No change in performance detected. Lets investigate with the SQLite REPL:
 
 ```sql
 ~/g/b/sakkosekk $ sqlite3 bench_get_documents_by_id.sqlite
@@ -206,7 +206,7 @@ QUERY PLAN
 sqlite>
 ```
 
-SQLite actually creates an *autoindex*, so we see no performance gain when creating the index. A search on SQLite documentation reveals some details:
+SQLite actually creates an *autoindex*, so we see no performance gain when creating the index. A search in the [SQLite query optimizer documentation] reveals some details:
 
 > In SQLite version 3.8.0 (2013-08-26) and later, an SQLITE_WARNING_AUTOINDEX message is sent to the error log every time a statement is prepared that uses an automatic index. Application developers can and should use these warnings to identify the need for new persistent indices in the schema.
 
@@ -217,3 +217,4 @@ Following the recomendation, I'll leave the definition of the index.
 
 [criterion]: https://github.com/bheisler/criterion.rs
 [known limitations]: https://bheisler.github.io/criterion.rs/book/user_guide/known_limitations.html
+[SQLite query optimizer documentation]: https://www.sqlite.org/optoverview.html
