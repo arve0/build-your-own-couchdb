@@ -3,11 +3,7 @@ use std::path::Path;
 
 mod tests;
 
-fn main() {
-    let db = get_db_create_if_missing("database.sqlite");
-}
-
-fn get_db_create_if_missing(filename: &str) -> Connection {
+pub fn get_db_create_if_missing(filename: &str) -> Connection {
     // Connection::open will create file if missing, check before.
     let exists = Path::new(filename).exists();
 
@@ -23,11 +19,11 @@ fn get_db_create_if_missing(filename: &str) -> Connection {
 }
 
 #[derive(PartialEq)]
-struct Document {
-    id: String,
-    revision: i64,
-    hash: Vec<u8>,
-    data: String,
+pub struct Document {
+    pub id: String,
+    pub revision: i64,
+    pub hash: Vec<u8>,
+    pub data: String,
 }
 
 impl Document {
@@ -40,11 +36,12 @@ impl Document {
                 data text not null,
                 unique(id, revision, hash)
             );
+            create index documents_id_idx on documents(id);
             ",
         )
     }
 
-    fn insert(&self, db: &Connection) -> Result<usize, SqliteError> {
+    pub fn insert(&self, db: &Connection) -> Result<usize, SqliteError> {
         db.execute_named(
             "insert into documents (id, revision, hash, data)
         values (:id, :revision, :hash, :data)",
@@ -57,7 +54,7 @@ impl Document {
         )
     }
 
-    fn get_by_id(id: &str, db: &Connection) -> Result<Vec<Self>, SqliteError> {
+    pub fn get_by_id(id: &str, db: &Connection) -> Result<Vec<Self>, SqliteError> {
         db.prepare("select id, revision, hash, data from documents where id=:id")?
             .query_map_named(named_params!(":id": id), Document::row_mapper)?
             .collect()

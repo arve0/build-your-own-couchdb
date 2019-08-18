@@ -6,3 +6,10 @@ edition = "2018"
 
 [dependencies]
 rusqlite = { version = "0.20", features = ["bundled"] }
+
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "database"
+harness = false

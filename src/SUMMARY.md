@@ -7,3 +7,4 @@
 - [Testing introduction](./05-testing-introduction.md)
 - [Tests that are expected to fail](./06-tests-that-are-expected-to-fail.md)
 - [Gettting all revisions of document](./07-getting-all-revisions-of-document.md)
+- [Bencmarking](./08-benchmarking.md)
