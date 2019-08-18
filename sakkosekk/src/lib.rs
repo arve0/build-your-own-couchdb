@@ -13,9 +13,19 @@ pub fn get_db_create_if_missing(filename: &str) -> Connection {
     if !exists {
         // create schema
         Document::create_table(&db).expect("Unable to create documents table.");
+
+        enable_write_ahead_logging(&db);
     }
 
     db
+}
+
+fn enable_write_ahead_logging(db: &Connection) {
+    // PRAGMA journal_mode=wal;
+    let result: String = db
+        .pragma_update_and_check(None, "journal_mode", &"wal", |row| row.get(0))
+        .unwrap();
+    assert!("wal" == &result);
 }
 
 #[derive(PartialEq)]

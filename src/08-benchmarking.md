@@ -212,9 +212,45 @@ SQLite actually creates an *autoindex*, so we see no performance gain when creat
 
 Following the recomendation, I'll leave the definition of the index.
 
+## Enabling write-ahead logging (WAL)
+A common performance recommandation for SQLite is [write-ahead logging].
+
+Add Enabling WAL-mode:
+```rust
+    ...
+
+    if !exists {
+        // create schema
+        Document::create_table(&db).expect("Unable to create documents table.");
+
+        enable_write_ahead_logging(&db);
+    }
+
+    db
+}
+
+fn enable_write_ahead_logging(db: &Connection) {
+    // PRAGMA journal_mode=wal;
+    let result: String = db
+        .pragma_update_and_check(None, "journal_mode", &"wal", |row| row.get(0))
+        .unwrap();
+    assert!("wal" == &result);
+}
+```
+
+As before, we use `cargo bench` to assess performance:
+```
+get documents by id     time:   [13.426 us 13.583 us 13.759 us]
+                        change: [-51.227% -49.928% -48.677%] (p = 0.00 < 0.05)
+                        Performance has improved.
+```
+
+2x speedup! 14 microseconds gives a decent upper limit for fetches, 1s / 14us ≈ 70k fetches per second on this hardware (2013 macbook air with 250 GB SSD). I'm happy with that, so let's continue with adding a HTTP-layer in front of the disk persistence.
+
 **Next up:** Adding HTTP.
 
 
 [criterion]: https://github.com/bheisler/criterion.rs
 [known limitations]: https://bheisler.github.io/criterion.rs/book/user_guide/known_limitations.html
 [SQLite query optimizer documentation]: https://www.sqlite.org/optoverview.html
+[write-ahead logging]: https://www.sqlite.org/wal.html
