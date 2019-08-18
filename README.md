@@ -4,7 +4,7 @@ Read book at https://arve0.github.io/build-your-own-couchdb/.
 ## Writing
 Edit book inside [src](./src/) and code inside [sakkosekk](./sakkosekk/).
 
-Build HTML with mdbook:
+Build HTML with [mdbook](https://github.com/rust-lang-nursery/mdBook):
 ```sh
 cargo install mdbook
 mdbook build
