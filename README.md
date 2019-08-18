@@ -23,7 +23,7 @@ cargo test
 ```
 
 ### Benchmarks
-See benchmarks in [benched](./sakkosekk/benches/).
+See benchmarks in [benches](./sakkosekk/benches/).
 ```sh
 cargo bench
 ```
@@ -33,7 +33,7 @@ cargo bench
 cargo run
 ```
 
-### Building
+### Building release
 ```sh
 cargo build --release
 ```
