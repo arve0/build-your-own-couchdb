@@ -22,6 +22,12 @@ cd sakkosekk
 cargo test
 ```
 
+### Benchmarks
+See benchmarks in [benched](./sakkosekk/benches/).
+```sh
+cargo bench
+```
+
 ### Running
 ```sh
 cargo run
