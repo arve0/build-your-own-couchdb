@@ -247,7 +247,7 @@ get documents by id     time:   [13.426 us 13.583 us 13.759 us]
 
 2x speedup! 14 microseconds gives a decent upper limit for fetches, 1s / 14us ≈ 70k fetches per second on this hardware (2013 macbook air with 250 GB SSD). I'm happy with that, so let's continue with adding a HTTP-layer in front of the disk persistence.
 
-**Next up:** Adding HTTP.
+**Next up:** Defining an API.
 
 
 [criterion]: https://github.com/bheisler/criterion.rs
